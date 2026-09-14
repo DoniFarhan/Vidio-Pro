@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vidio Stream - Movie & Video Platform</title>
+  <meta name="description" content="Platform streaming video profesional dengan pemutar interaktif multi-episode 1-223, link perepisode dinamis, navigasi kategori lengkap, dan integrasi monetisasi." />
+  <meta property="og:title" content="Vidio Stream - Movie & Video Platform" />
+  <meta property="og:description" content="Platform streaming video profesional dengan pemutar interaktif multi-episode 1-223, link perepisode dinamis, navigasi kategori lengkap, dan integrasi monetisasi." />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { red: '#e50914', dark: '#0b0b0e', card: '#14141c', border: '#232332' }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- SOCIAL_BAR SCRIPT (Aturan Monetisasi 5) -->
+  <script src="https://bleatbehind.com/25/c5/82/25c5826d5d3607775a4ea420f92e5256.js"></script>
+
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 9999px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    body { transition: background-color 0.2s, color 0.2s; }
+  </style>
+</head>
+<body class="bg-[#0b0b0e] text-slate-100 min-h-screen font-sans antialiased selection:bg-red-600 selection:text-white">
+
+  <!-- TOP NAVBAR -->
+  <header class="sticky top-0 z-40 w-full border-b border-[#232332] bg-[#0b0b0e]/95 backdrop-blur-md px-3 sm:px-6 py-2.5 transition-colors">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+      
+      <!-- Brand Logo & Mobile Menu Button -->
+      <div class="flex items-center gap-2">
+        <button onclick="toggleSidebar()" class="lg:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800" aria-label="Menu">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <div onclick="switchTab('home')" class="flex items-center gap-2 cursor-pointer group">
+          <div class="w-8 h-8 rounded-xl bg-red-600 flex items-center justify-center shadow-lg shadow-red-600/30 group-hover:scale-105 transition-transform">
+            <i data-lucide="play" class="w-4 h-4 text-white fill-white ml-0.5"></i>
+          </div>
+          <span class="text-xl font-black tracking-tight text-white">VIDIO<span class="text-red-500">PRO</span></span>
+        </div>
+      </div>
+
+      <!-- Realtime Video Search Bar -->
+      <div class="flex-1 max-w-lg mx-2">
+        <div class="relative flex items-center">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none"></i>
+          <input 
+            id="nav-search-input" 
+            type="text" 
+            placeholder="Cari film, viral, anime, series..." 
+            class="w-full pl-9 pr-8 py-2 bg-[#14141c] border border-[#232332] rounded-full text-xs sm:text-sm text-slate-200 placeholder-slate-400 focus:outline-none focus:border-red-500 transition-all"
+            oninput="handleLiveSearch(this.value)"
+          />
+          <button id="search-clear-btn" onclick="clearLiveSearch()" class="hidden absolute right-3 text-slate-400 hover:text-white">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Controls: Night Mode & Social Login -->
+      <div class="flex items-center gap-2">
+        <button 
+          id="theme-btn" 
+          onclick="toggleThemeMode()" 
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#14141c] border border-[#232332] text-slate-200 hover:border-slate-500"
+          title="Ganti Mode Tampilan"
+        >
+          <i id="theme-icon" data-lucide="moon" class="w-4 h-4 text-amber-400"></i>
+          <span id="theme-text" class="hidden sm:inline">Night</span>
+        </button>
+
+        <button 
+          id="nav-login-btn" 
+          onclick="switchTab('auth')" 
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-red-600/20 border border-red-500/40 text-red-400 hover:bg-red-600 hover:text-white transition-colors"
+        >
+          <i data-lucide="user" class="w-4 h-4"></i>
+          <span id="nav-login-name" class="hidden sm:inline">Masuk</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MOBILE OVERLAY -->
+  <div id="mobile-overlay" onclick="toggleSidebar(false)" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden"></div>
+
+  <!-- MAIN WRAPPER -->
+  <div class="max-w-7xl mx-auto px-3 sm:px-6 py-4">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- LEFT SIDEBAR: MENU SISTEM -->
+      <aside id="sidebar-menu" class="fixed lg:static top-0 bottom-0 left-0 w-64 lg:w-auto z-50 lg:z-auto -translate-x-full lg:translate-x-0 transition-transform duration-300 lg:col-span-2 bg-[#0b0b0e] lg:bg-transparent p-4 lg:p-0 border-r lg:border-none border-[#232332] flex flex-col justify-between overflow-y-auto">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between lg:hidden pb-2 border-b border-[#232332]">
+            <span class="text-sm font-bold text-slate-300">Navigasi Menu</span>
+            <button onclick="toggleSidebar(false)" class="p-1 text-slate-400 hover:text-white">
+              <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+          </div>
+
+          <nav class="space-y-1">
+            <button onclick="switchTab('home')" id="tab-btn-home" class="menu-tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-white bg-red-600 shadow-md transition-all">
+              <i data-lucide="home" class="w-4 h-4"></i>
+              <span>Home</span>
+            </button>
+            <button onclick="switchTab('viral')" id="tab-btn-viral" class="menu-tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-[#14141c] transition-all">
+              <i data-lucide="flame" class="w-4 h-4 text-orange-500"></i>
+              <span>Viral</span>
+              <span class="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-orange-500/20 text-orange-400">HOT</span>
+            </button>
+            <button onclick="switchTab('ometv')" id="tab-btn-ometv" class="menu-tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-[#14141c] transition-all">
+              <i data-lucide="video" class="w-4 h-4 text-emerald-500"></i>
+              <span>Ome Tv</span>
+              <span class="ml-auto w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            </button>
+            <button onclick="switchTab('language')" id="tab-btn-language" class="menu-tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-[#14141c] transition-all">
+              <i data-lucide="globe" class="w-4 h-4 text-cyan-400"></i>
+              <span>Language</span>
+            </button>
+            <button onclick="switchTab('content')" id="tab-btn-content" class="menu-tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-[#14141c] transition-all">
+              <i data-lucide="map-pin" class="w-4 h-4 text-rose-400"></i>
+              <span>Content</span>
+            </button>
+            <button onclick="switchTab('auth')" id="tab-btn-auth" class="menu-tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-[#14141c] transition-all">
+              <i data-lucide="share-2" class="w-4 h-4 text-blue-400"></i>
+              <span>Media X & Fb</span>
+            </button>
+            <button onclick="switchTab('history')" id="tab-btn-history" class="menu-tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-[#14141c] transition-all">
+              <i data-lucide="history" class="w-4 h-4 text-amber-400"></i>
+              <span>History</span>
+              <span id="history-count-badge" class="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-300">0</span>
+            </button>
+            <button onclick="switchTab('setting')" id="tab-btn-setting" class="menu-tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-[#14141c] transition-all">
+              <i data-lucide="settings" class="w-4 h-4 text-slate-400"></i>
+              <span>Setting</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- Sidebar Direct Link Banner -->
+        <div class="mt-6 p-3 rounded-2xl bg-gradient-to-br from-red-950/40 to-slate-900 border border-red-900/40 text-center">
+          <p class="text-xs font-bold text-red-300">Server VIP 4K</p>
+          <p class="text-[11px] text-slate-400 my-1">Streaming Episode 1 s/d 223 Cepat</p>
+          <button onclick="openDirectLink()" class="w-full py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md shadow-red-600/30 flex items-center justify-center gap-1">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Buka Akses VIP
+          </button>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT: DYNAMIC TABS -->
+      <main class="lg:col-span-7 space-y-6">
+
+        <!-- SEARCH STATUS BAR -->
+        <div id="search-alert" class="hidden p-3 rounded-xl bg-red-900/20 border border-red-500/30 flex items-center justify-between">
+          <div class="flex items-center gap-2 text-xs sm:text-sm">
+            <i data-lucide="search" class="w-4 h-4 text-red-400"></i>
+            <span>Pencarian: <strong id="search-query-text" class="text-red-300"></strong></span>
+          </div>
+          <button onclick="clearLiveSearch()" class="text-xs text-slate-400 hover:text-white underline">Tutup</button>
+        </div>
+
+        <!-- TAB 1: HOME -->
+        <div id="content-tab-home" class="space-y-6">
+          
+          <!-- Hero Featured Card -->
+          <div class="relative rounded-3xl overflow-hidden border border-[#232332] bg-[#14141c] shadow-xl group">
+            <div class="aspect-[16/9] sm:aspect-[21/9] w-full relative">
+              <img id="hero-img" src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80" alt="Hero" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0b0b0e] via-[#0b0b0e]/50 to-transparent"></div>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-6 space-y-2">
+              <div class="flex items-center gap-2 text-xs">
+                <span class="px-2 py-0.5 rounded bg-red-600 text-white font-bold">TRENDING #1</span>
+                <span class="px-2 py-0.5 rounded bg-slate-800 text-emerald-400 font-semibold">★ 9.8</span>
+                <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold">EPISODE 1-223</span>
+              </div>
+              <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-white">Cyber Shadow: Chronicles of Neo-Tokyo</h1>
+              <p class="text-xs sm:text-sm text-slate-300 line-clamp-2">Konspirasi masa depan distopia. Serial penuh aksi dengan 223 episode lengkap berkecepatan tinggi.</p>
+              
+              <div class="flex flex-wrap items-center gap-2 pt-2">
+                <button onclick="playMovie('m-1', 1)" class="px-5 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-red-600/40">
+                  <i data-lucide="play" class="w-4 h-4 fill-white"></i> Watch Now
+                </button>
+                <button onclick="toggleFav('m-1')" class="px-4 py-2 rounded-full bg-[#14141c] hover:bg-slate-800 border border-[#232332] text-slate-200 text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                  <i data-lucide="heart" class="w-4 h-4"></i> Favorit
+                </button>
+                <button onclick="openDirectLink()" class="px-4 py-2 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-semibold flex items-center gap-1">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Link VIP 1-223
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Pills -->
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 text-xs">
+            <button onclick="filterCat('All')" class="cat-pill px-3 py-1.5 rounded-full font-semibold bg-red-600 text-white whitespace-nowrap">Semua</button>
+            <button onclick="filterCat('Action')" class="cat-pill px-3 py-1.5 rounded-full font-semibold bg-[#14141c] text-slate-300 border border-[#232332] whitespace-nowrap">Action</button>
+            <button onclick="filterCat('Romance')" class="cat-pill px-3 py-1.5 rounded-full font-semibold bg-[#14141c] text-slate-300 border border-[#232332] whitespace-nowrap">Romance</button>
+            <button onclick="filterCat('Horror')" class="cat-pill px-3 py-1.5 rounded-full font-semibold bg-[#14141c] text-slate-300 border border-[#232332] whitespace-nowrap">Horror</button>
+            <button onclick="filterCat('Anime')" class="cat-pill px-3 py-1.5 rounded-full font-semibold bg-[#14141c] text-slate-300 border border-[#232332] whitespace-nowrap">Anime</button>
+            <button onclick="filterCat('K-Drama')" class="cat-pill px-3 py-1.5 rounded-full font-semibold bg-[#14141c] text-slate-300 border border-[#232332] whitespace-nowrap">K-Drama</button>
+            <button onclick="filterCat('Comedy')" class="cat-pill px-3 py-1.5 rounded-full font-semibold bg-[#14141c] text-slate-300 border border-[#232332] whitespace-nowrap">Comedy</button>
+          </div>
+
+          <!-- SECTION: NEW RELEASE -->
+          <section class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-2.5 h-5 bg-red-600 rounded-full"></div>
+                <h2 class="text-base sm:text-lg font-bold text-white">New Release</h2>
+                <span class="text-xs text-slate-400">(Tersedia Episode 1-223)</span>
+              </div>
+              <button onclick="openDirectLink()" class="text-xs text-red-400 hover:underline flex items-center gap-1 font-semibold">
+                Lihat Semua <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <div id="grid-new-release" class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4"></div>
+          </section>
+
+          <!-- ================================================================ -->
+          <!-- BANNER_HORIZONTAL (PERSIS DI BAWAH SECTION NEW RELEASE)        -->
+          <!-- ================================================================ -->
+          <div id="banner-horizontal-slot" class="w-full my-4 p-2 rounded-2xl bg-[#14141c] border border-[#232332] flex flex-col items-center justify-center overflow-hidden min-h-[105px]">
+            <span class="text-[9px] text-slate-500 uppercase tracking-widest mb-1">SPONSORED ADVERTISEMENT</span>
+            <div class="w-full flex justify-center items-center overflow-x-auto">
+              <!-- Exact BANNER_HORIZONTAL tag -->
+              <script>
+                atOptions = {
+                  'key' : 'd3cf8ebd0f04fb213b7365eb4a2a5a1d',
+                  'format' : 'iframe',
+                  'height' : 90,
+                  'width' : 728,
+                  'params' : {}
+                };
+              </script>
+              <script src="https://bleatbehind.com/d3cf8ebd0f04fb213b7365eb4a2a5a1d/invoke.js"></script>
+              <!-- Backup interactive card -->
+              <div onclick="openDirectLink()" class="cursor-pointer max-w-[728px] w-full h-[90px] bg-gradient-to-r from-red-950/40 to-slate-900 rounded-xl border border-red-500/20 flex items-center justify-between px-4 hover:border-red-500/50">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center text-white"><i data-lucide="play-circle" class="w-6 h-6"></i></div>
+                  <div>
+                    <h4 class="text-xs sm:text-sm font-bold text-white">VIP Streaming Fast Server 4K</h4>
+                    <p class="text-[11px] text-slate-400">Putar instan episode 1 sampai 223 bebas lag</p>
+                  </div>
+                </div>
+                <span class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold">KLIK DISINI</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION: TRENDING & VIRAL -->
+          <section class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-2.5 h-5 bg-orange-500 rounded-full"></div>
+                <h2 class="text-base sm:text-lg font-bold text-white">Trending & Viral</h2>
+              </div>
+              <button onclick="switchTab('viral')" class="text-xs text-orange-400 hover:underline">Buka Tab Viral</button>
+            </div>
+            <div id="grid-trending" class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4"></div>
+          </section>
+
+          <!-- ================================================================ -->
+          <!-- NATIVE_BANNER (KONTEN REKOMENDASI)                            -->
+          <!-- ================================================================ -->
+          <div id="native-banner-slot" class="w-full my-4 p-4 rounded-2xl bg-gradient-to-r from-[#14141c] to-slate-900 border border-[#232332]">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="award" class="w-3.5 h-3.5 text-amber-400"></i> Konten Pilihan Rekomendasi
+              </span>
+              <span class="text-[10px] text-slate-500 uppercase">Native Sponsored</span>
+            </div>
+            <!-- Exact NATIVE_BANNER tag -->
+            <script async="async" data-cfasync="false" src="https://bleatbehind.com/20d4f85d48fb24cf61c07638b0580f9c/invoke.js"></script>
+            <div id="container-20d4f85d48fb24cf61c07638b0580f9c"></div>
+            <!-- Backup Interactive box -->
+            <div onclick="openDirectLink()" class="cursor-pointer mt-2 p-3 bg-slate-800/40 hover:bg-slate-800 rounded-xl border border-slate-700/60 flex items-center justify-between">
+              <span class="text-xs text-slate-200">Klik di sini untuk menjelajahi koleksi serial drama terbaru hari ini</span>
+              <span class="text-xs text-red-400 font-bold flex items-center gap-1">Buka Sekarang <i data-lucide="external-link" class="w-3 h-3"></i></span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- TAB 2: VIRAL -->
+        <div id="content-tab-viral" class="hidden space-y-4">
+          <div class="pb-2 border-b border-[#232332] flex items-center justify-between">
+            <div>
+              <h2 class="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                <i data-lucide="flame" class="w-5 h-5 text-orange-500"></i> Konten Viral Terhangat
+              </h2>
+              <p class="text-xs text-slate-400">Kumpulan video viral media sosial terlengkap hari ini</p>
+            </div>
+            <button onclick="openDirectLink()" class="px-3 py-1.5 bg-orange-600 text-white rounded-lg text-xs font-bold flex items-center gap-1">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Update Video
+            </button>
+          </div>
+          <div id="viral-items-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+        </div>
+
+        <!-- TAB 3: OME TV -->
+        <div id="content-tab-ometv" class="hidden space-y-4">
+          <div class="pb-2 border-b border-[#232332] flex items-center justify-between">
+            <div>
+              <h2 class="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                <i data-lucide="video" class="w-5 h-5 text-emerald-500"></i> Ome Tv & Live Streaming
+              </h2>
+              <p class="text-xs text-slate-400">Siaran video interaktif langsung dari berbagai server</p>
+            </div>
+            <span class="text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> 1,429 Online
+            </span>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-[#14141c] border border-[#232332] space-y-3">
+            <div class="aspect-video w-full rounded-xl bg-black relative overflow-hidden flex items-center justify-center">
+              <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1000&q=80" alt="Live Room" class="w-full h-full object-cover opacity-60">
+              <div class="absolute top-3 left-3 flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-red-600 text-white text-[10px] font-bold uppercase">LIVE ROOM #1</span>
+                <span class="px-2 py-0.5 rounded bg-black/60 text-white text-[10px]">Indonesia Server</span>
+              </div>
+              <button onclick="playMovie('m-3', 1)" class="absolute px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xl flex items-center gap-2">
+                <i data-lucide="play" class="w-4 h-4 fill-white"></i> Gabung Siaran
+              </button>
+            </div>
+            <div class="flex items-center justify-between">
+              <button onclick="openDirectLink()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold">Ganti Lawan Bicara (Next)</button>
+              <button onclick="playMovie('m-3', 1)" class="text-xs text-emerald-400 hover:underline">Buka Player Penuh</button>
+            </div>
+          </div>
+          <div id="ometv-rooms-container" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+        </div>
+
+        <!-- TAB 4: LANGUAGE (SEMUA BAHASA ADA) -->
+        <div id="content-tab-language" class="hidden space-y-4">
+          <div class="pb-2 border-b border-[#232332]">
+            <h2 class="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+              <i data-lucide="globe" class="w-5 h-5 text-cyan-400"></i> Pilihan Semua Bahasa (All Languages)
+            </h2>
+            <p class="text-xs text-slate-400">Pilih bahasa audio atau subtitle film favorit Anda</p>
+          </div>
+          <input 
+            id="search-lang-input" 
+            type="text" 
+            placeholder="Ketik bahasa (Indonesia, English, Japan, Korea, dll)..." 
+            class="w-full px-3 py-2 bg-[#14141c] border border-[#232332] rounded-xl text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+            oninput="searchLanguages(this.value)"
+          />
+          <div id="languages-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5"></div>
+        </div>
+
+        <!-- TAB 5: CONTENT NEGARA -->
+        <div id="content-tab-content" class="hidden space-y-4">
+          <div class="pb-2 border-b border-[#232332] flex items-center justify-between">
+            <div>
+              <h2 class="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                <i data-lucide="map-pin" class="w-5 h-5 text-rose-400"></i> Konten Berdasarkan Negara
+              </h2>
+              <p class="text-xs text-slate-400">Pilih negara untuk memuat katalog video lokal</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-semibold">
+              Lokasi: <span id="active-country-label">Indonesia</span>
+            </span>
+          </div>
+          <div id="country-pill-selector" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 text-xs"></div>
+          <div id="country-movies-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4"></div>
+        </div>
+
+        <!-- TAB 6: MEDIA X & FB (LOGIN SYSTEM) -->
+        <div id="content-tab-auth" class="hidden space-y-4">
+          <div class="pb-2 border-b border-[#232332]">
+            <h2 class="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+              <i data-lucide="share-2" class="w-5 h-5 text-blue-400"></i> Integrasi Media X & Facebook
+            </h2>
+            <p class="text-xs text-slate-400">Hubungkan akun Anda untuk sinkronisasi riwayat dan komentar</p>
+          </div>
+
+          <!-- Auth Card -->
+          <div id="auth-panel-wrapper" class="p-5 rounded-2xl bg-[#14141c] border border-[#232332] space-y-4"></div>
+        </div>
+
+        <!-- TAB 7: HISTORY -->
+        <div id="content-tab-history" class="hidden space-y-4">
+          <div class="pb-2 border-b border-[#232332] flex items-center justify-between">
+            <div>
+              <h2 class="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                <i data-lucide="history" class="w-5 h-5 text-amber-400"></i> Riwayat Menonton
+              </h2>
+              <p class="text-xs text-slate-400">Daftar video yang telah Anda putar</p>
+            </div>
+            <button onclick="clearAllHistory()" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-400 bg-rose-950/30 border border-rose-500/30 hover:bg-rose-900/50 flex items-center gap-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus Riwayat
+            </button>
+          </div>
+          <div id="history-items-list" class="space-y-2"></div>
+        </div>
+
+        <!-- TAB 8: SETTING -->
+        <div id="content-tab-setting" class="hidden space-y-4">
+          <div class="pb-2 border-b border-[#232332]">
+            <h2 class="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+              <i data-lucide="settings" class="w-5 h-5 text-slate-400"></i> Pengaturan & Konfigurasi
+            </h2>
+            <p class="text-xs text-slate-400">Sesuaikan pemutar video dan preferensi aplikasi</p>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div class="p-3.5 rounded-xl bg-[#14141c] border border-[#232332] flex items-center justify-between">
+              <div>
+                <p class="font-bold text-slate-200">Kualitas Video Default</p>
+                <p class="text-slate-400">Resolusi pemutaran video otomatis</p>
+              </div>
+              <select class="bg-[#0b0b0e] border border-[#232332] text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none">
+                <option>1080p Full HD</option>
+                <option>720p HD</option>
+                <option>480p SD</option>
+              </select>
+            </div>
+
+            <!-- Custom Video URL Input -->
+            <div class="p-3.5 rounded-xl bg-[#14141c] border border-[#232332] space-y-2">
+              <p class="font-bold text-slate-200">Ganti Video Source Global (Custom URL)</p>
+              <p class="text-slate-400">Masukkan link file video direct (.mp4) untuk mengganti sumber streaming:</p>
+              <div class="flex items-center gap-2">
+                <input id="custom-global-url" type="text" placeholder="https://.../video.mp4" class="flex-1 px-3 py-1.5 bg-[#0b0b0e] border border-[#232332] rounded-lg text-slate-200 focus:outline-none focus:border-red-500" />
+                <button onclick="applyCustomGlobalUrl()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg">Terapkan</button>
+              </div>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-[#14141c] border border-[#232332] flex items-center justify-between">
+              <div>
+                <p class="font-bold text-slate-200">Status Monetisasi Iklan</p>
+                <p class="text-slate-400">DIRECT_LINK, Banner Kotak, Horizontal & Native</p>
+              </div>
+              <button onclick="openDirectLink()" class="px-3 py-1.5 bg-red-600/20 text-red-400 border border-red-500/30 rounded-lg font-bold">Cek Direct Link</button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+      <!-- RIGHT SIDEBAR (POPULAR MOVIES, BANNER_KOTAK, FAVORITES) -->
+      <aside class="hidden lg:block lg:col-span-3 space-y-5">
+        
+        <!-- SECTION: POPULAR MOVIES -->
+        <section class="p-4 rounded-3xl bg-[#14141c] border border-[#232332] space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-[#232332]">
+            <h3 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="trending-up" class="w-4 h-4 text-red-500"></i> Popular Movies
+            </h3>
+            <span class="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded font-bold">TOP 5</span>
+          </div>
+          <div id="popular-movies-column" class="space-y-2.5"></div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- BANNER_KOTAK (PERSIS DI ANTARA POPULAR MOVIES DAN FAVORITES) -->
+        <!-- ================================================================ -->
+        <div id="banner-kotak-slot" class="w-full p-3 rounded-3xl bg-[#14141c] border border-[#232332] flex flex-col items-center justify-center overflow-hidden min-h-[290px]">
+          <span class="text-[9px] text-slate-500 uppercase tracking-widest mb-1.5">SPONSORED BANNER</span>
+          <div class="w-[300px] h-[250px] flex items-center justify-center bg-black/40 rounded-xl overflow-hidden relative">
+            <!-- Exact BANNER_KOTAK script -->
+            <script>
+              atOptions = {
+                'key' : '5cb0237d4562922cd89e8209e7afce17',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+              };
+            </script>
+            <script src="https://bleatbehind.com/5cb0237d4562922cd89e8209e7afce17/invoke.js"></script>
+            <!-- Fallback interactive card -->
+            <div onclick="openDirectLink()" class="cursor-pointer absolute inset-0 bg-gradient-to-br from-red-950/70 to-slate-900 p-4 flex flex-col justify-between text-center hover:opacity-95">
+              <span class="px-2 py-0.5 rounded bg-red-600 text-white text-[10px] font-bold self-center">300x250 ADS</span>
+              <div>
+                <i data-lucide="zap" class="w-7 h-7 text-amber-400 mx-auto mb-1"></i>
+                <p class="text-sm font-black text-white">Full HD Streaming Server</p>
+                <p class="text-[11px] text-slate-400">Tonton tanpa buffering 223 episode sekarang</p>
+              </div>
+              <button class="w-full py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg shadow">KLIK DISINI</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: FAVORITES -->
+        <section class="p-4 rounded-3xl bg-[#14141c] border border-[#232332] space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-[#232332]">
+            <h3 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="heart" class="w-4 h-4 text-rose-500 fill-rose-500"></i> Favorites
+            </h3>
+            <span id="fav-count-badge" class="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded font-bold">0</span>
+          </div>
+          <div id="favorites-column" class="space-y-2.5 max-h-64 overflow-y-auto pr-1"></div>
+        </section>
+
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- ========================================= -->
+  <!-- MODAL VIDEO PLAYER (EPISODE 1 SAMPAI 223) -->
+  <!-- ========================================= -->
+  <div id="video-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+    <div class="relative w-full max-w-4xl bg-[#14141c] border border-[#232332] rounded-3xl overflow-hidden shadow-2xl my-auto">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-[#232332] bg-[#0b0b0e]">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
+          <h3 id="modal-title" class="text-xs sm:text-sm font-bold text-white truncate max-w-[200px] sm:max-w-md">Video Player</h3>
+          <span id="modal-current-ep" class="text-xs px-2 py-0.5 rounded bg-red-600/20 text-red-400 font-semibold">Ep 1</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="openDirectLink()" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold flex items-center gap-1">
+            <i data-lucide="external-link" class="w-3 h-3"></i> Link VIP
+          </button>
+          <button onclick="closeVideoModal()" class="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800" aria-label="Tutup">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- HTML5 Video Player -->
+      <div class="relative aspect-video w-full bg-black flex items-center justify-center">
+        <video id="player-video" class="w-full h-full object-contain" controls autoplay playsinline>
+          <source id="player-src" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+        </video>
+        <div class="absolute top-2 left-2 pointer-events-none">
+          <span id="video-hud-ep" class="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-white text-[11px] font-bold border border-white/10">
+            Episode 1 / 223
+          </span>
+        </div>
+      </div>
+
+      <!-- Video URL Bar (Fitur Ganti Video URL) -->
+      <div class="px-4 py-2 bg-[#0b0b0e] border-b border-[#232332] flex flex-wrap items-center gap-2 text-xs">
+        <span class="text-slate-400 font-medium">Video URL:</span>
+        <input id="modal-url-box" type="text" class="flex-1 min-w-[180px] px-2.5 py-1 bg-[#14141c] border border-[#232332] rounded-lg text-slate-200 focus:outline-none" />
+        <button onclick="changeActiveVideoSource()" class="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold">Ganti Video</button>
+      </div>
+
+      <!-- Episode 1 - 223 Grid & Range Tabs -->
+      <div class="p-4 sm:p-5 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h4 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+              <i data-lucide="list-ordered" class="w-4 h-4 text-red-500"></i> Pilih Episode (1 s/d 223 Semua Aktif)
+            </h4>
+            <p class="text-[10px] text-slate-400">Setiap pergantian episode otomatis masuk direct link & memuat video</p>
+          </div>
+          <!-- Quick Jump -->
+          <div class="flex items-center gap-1 text-xs">
+            <span class="text-slate-400">Ke:</span>
+            <input id="jump-box" type="number" min="1" max="223" placeholder="1-223" class="w-16 px-2 py-1 bg-[#0b0b0e] border border-[#232332] rounded text-white text-center" onkeydown="if(event.key==='Enter') jumpEp(this.value)" />
+            <button onclick="jumpEp(document.getElementById('jump-box').value)" class="px-2 py-1 bg-slate-800 text-slate-200 rounded font-bold">Go</button>
+          </div>
+        </div>
+
+        <!-- Range Tabs for 223 Episodes -->
+        <div class="flex items-center gap-1 overflow-x-auto no-scrollbar pb-1 text-xs">
+          <button onclick="renderEpisodeBatch(1, 50)" id="ep-tab-1" class="ep-batch-btn px-2.5 py-1 rounded bg-red-600 text-white whitespace-nowrap font-semibold">1-50</button>
+          <button onclick="renderEpisodeBatch(51, 100)" id="ep-tab-51" class="ep-batch-btn px-2.5 py-1 rounded bg-[#0b0b0e] text-slate-400 border border-[#232332] whitespace-nowrap font-semibold">51-100</button>
+          <button onclick="renderEpisodeBatch(101, 150)" id="ep-tab-101" class="ep-batch-btn px-2.5 py-1 rounded bg-[#0b0b0e] text-slate-400 border border-[#232332] whitespace-nowrap font-semibold">101-150</button>
+          <button onclick="renderEpisodeBatch(151, 200)" id="ep-tab-151" class="ep-batch-btn px-2.5 py-1 rounded bg-[#0b0b0e] text-slate-400 border border-[#232332] whitespace-nowrap font-semibold">151-200</button>
+          <button onclick="renderEpisodeBatch(201, 223)" id="ep-tab-201" class="ep-batch-btn px-2.5 py-1 rounded bg-[#0b0b0e] text-slate-400 border border-[#232332] whitespace-nowrap font-semibold">201-223</button>
+        </div>
+
+        <!-- Episodes Buttons (1 to 223) -->
+        <div id="episodes-container" class="grid grid-cols-5 sm:grid-cols-10 gap-1.5 max-h-40 overflow-y-auto pr-1"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="mt-12 border-t border-[#232332] bg-[#0b0b0e] py-6 text-xs text-slate-500 text-center">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p class="font-bold text-slate-300">VIDIO PRO STREAMING PLATFORM</p>
+      <p>© 2026 Hak Cipta Dilindungi. Streaming Movie & Video Interaktif 223 Episode.</p>
+    </div>
+  </footer>
+
+  <!-- ======================================================= -->
+  <!-- VANILLA JAVASCRIPT ENGINE (DIPERBAIKI & SIAP PAKAI)      -->
+  <!-- ======================================================= -->
+  <script>
+    // 1. KONFIGURASI IKLAN & MONETISASI
+    const DIRECT_LINK = "https://bleatbehind.com/hubk7un2?key=e4452e5adae760fa4e7d6f0ee91ecb1a";
+
+    function openDirectLink() {
+      try {
+        window.open(DIRECT_LINK, '_blank', 'noopener,noreferrer');
+      } catch (e) {
+        console.warn("Direct link trigger:", e);
+      }
+    }
+
+    // 2. DAFTAR VIDEO SAMPEL CADANGAN (FALLBACK)
+    const VIDEO_SOURCES = [
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+    ];
+
+    // 3. MASTER DATA KATALOG FILM LENGKAP DENGAN LINK PER EPISODE
+    const MOVIES = [
+      { 
+        id: 'm-1', 
+        title: 'Cyber Shadow: Neo-Tokyo', 
+        cat: 'Action', 
+        rate: 9.8, 
+        country: 'Japan', 
+        lang: 'Japanese', 
+        poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=80', 
+        isNew: true, 
+        isViral: true, 
+        eps: 223,
+        episodes: {
+          1: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+          2: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+          3: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+          4: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+          5: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+          223: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+        }
+      },
+      { 
+        id: 'm-2', 
+        title: 'Cinta di Bawah Langit Jakarta', 
+        cat: 'Romance', 
+        rate: 9.2, 
+        country: 'Indonesia', 
+        lang: 'Indonesian', 
+        poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80', 
+        isNew: true, 
+        isViral: true, 
+        eps: 223,
+        episodes: {
+          1: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+          2: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+        }
+      },
+      { 
+        id: 'm-3', 
+        title: 'Misteri Rumah Angker Kaliurang', 
+        cat: 'Horror', 
+        rate: 8.9, 
+        country: 'Indonesia', 
+        lang: 'Indonesian', 
+        poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80', 
+        isNew: true, 
+        isViral: false, 
+        eps: 223,
+        episodes: {
+          1: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+          2: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+        }
+      },
+      { 
+        id: 'm-4', 
+        title: 'Seoul Memories: Golden Days', 
+        cat: 'K-Drama', 
+        rate: 9.6, 
+        country: 'South Korea', 
+        lang: 'Korean', 
+        poster: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80', 
+        isNew: false, 
+        isViral: true, 
+        eps: 223,
+        episodes: {
+          1: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+          2: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+        }
+      },
+      { 
+        id: 'm-5', 
+        title: 'Warkop Milenial Reborn', 
+        cat: 'Comedy', 
+        rate: 8.7, 
+        country: 'Indonesia', 
+        lang: 'Indonesian', 
+        poster: 'https://images.unsplash.com/photo-1514306191717-452ec28c7814?auto=format&fit=crop&w=600&q=80', 
+        isNew: true, 
+        isViral: false, 
+        eps: 223,
+        episodes: {
+          1: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+          2: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+        }
+      },
+      { 
+        id: 'm-6', 
+        title: 'Dragon Realm: Seven Blade', 
+        cat: 'Anime', 
+        rate: 9.7, 
+        country: 'Japan', 
+        lang: 'Japanese', 
+        poster: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=600&q=80', 
+        isNew: false, 
+        isViral: true, 
+        eps: 223,
+        episodes: {
+          1: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+          2: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+        }
+      },
+      { 
+        id: 'm-7', 
+        title: 'The Manhattan Detective', 
+        cat: 'Action', 
+        rate: 9.1, 
+        country: 'United States', 
+        lang: 'English', 
+        poster: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80', 
+        isNew: true, 
+        isViral: false, 
+        eps: 223,
+        episodes: {
+          1: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+          2: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+        }
+      },
+      { 
+        id: 'm-8', 
+        title: 'Bollywood Heartbeats', 
+        cat: 'Romance', 
+        rate: 8.8, 
+        country: 'India', 
+        lang: 'Hindi', 
+        poster: 'https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&w=600&q=80', 
+        isNew: false, 
+        isViral: true, 
+        eps: 223,
+        episodes: {
+          1: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+          2: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+        }
+      }
+    ];
+
+    // 4. FUNGSI PENCARI URL VIDEO PER EPISODE (MENCEGAH ERROR UNDEFINED)
+    function getVideoUrl(movieId, episodeNumber) {
+      const movie = MOVIES.find(m => m.id === movieId);
+      if (movie && movie.episodes && movie.episodes[episodeNumber]) {
+        return movie.episodes[episodeNumber];
+      }
+      return VIDEO_SOURCES[(episodeNumber - 1) % VIDEO_SOURCES.length];
+    }
+
+    const ALL_LANGUAGES = [
+      { name: 'Indonesian', flag: '🇮🇩', count: 184 },
+      { name: 'English', flag: '🇺🇸', count: 320 },
+      { name: 'Japanese', flag: '🇯🇵', count: 210 },
+      { name: 'Korean', flag: '🇰🇷', count: 195 },
+      { name: 'Spanish', flag: '🇪🇸', count: 140 },
+      { name: 'French', flag: '🇫🇷', count: 115 },
+      { name: 'German', flag: '🇩🇪', count: 98 },
+      { name: 'Arabic', flag: '🇸🇦', count: 130 },
+      { name: 'Hindi', flag: '🇮🇳', count: 175 },
+      { name: 'Chinese', flag: '🇨🇳', count: 240 },
+      { name: 'Thai', flag: '🇹🇭', count: 85 },
+      { name: 'Tagalog', flag: '🇵🇭', count: 70 },
+      { name: 'Russian', flag: '🇷🇺', count: 92 },
+      { name: 'Portuguese', flag: '🇧🇷', count: 88 }
+    ];
+
+    const ALL_COUNTRIES = ['Indonesia', 'Japan', 'South Korea', 'United States', 'India', 'Thailand', 'Spain'];
+
+    // 5. GLOBAL APP STATE
+    let currentTheme = localStorage.getItem('vidio_theme') || 'dark';
+    let currentMovieId = 'm-1';
+    let currentEpisode = 1;
+    let currentVideoUrl = VIDEO_SOURCES[0];
+    let favorites = JSON.parse(localStorage.getItem('vidio_favs') || '["m-1", "m-4"]');
+    let watchHistory = JSON.parse(localStorage.getItem('vidio_history') || '[]');
+    let authUser = JSON.parse(localStorage.getItem('vidio_user') || 'null');
+    let currentCatFilter = 'All';
+    let currentCountryFilter = 'Indonesia';
+
+    // 6. INITIALIZATION SAAT HALAMAN DIMUAT
+    window.addEventListener('DOMContentLoaded', () => {
+      applyTheme(currentTheme);
+      renderAll();
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    });
+
+    function renderAll() {
+      renderMoviesGrid();
+      renderPopularSidebar();
+      renderFavoritesSidebar();
+      renderViralTab();
+      renderOmeTvTab();
+      renderLanguagesTab();
+      renderCountryTab();
+      renderAuthPanel();
+      renderHistoryTab();
+      updateBadges();
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    // 7. TOGGLE TEMA (DARK / LIGHT)
+    function toggleThemeMode() {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('vidio_theme', currentTheme);
+      applyTheme(currentTheme);
+    }
+
+    function applyTheme(theme) {
+      const html = document.documentElement;
+      const tText = document.getElementById('theme-text');
+      const tIcon = document.getElementById('theme-icon');
+      if (theme === 'light') {
+        html.classList.remove('dark');
+        document.body.className = "bg-[#f8fafc] text-slate-800 min-h-screen font-sans antialiased selection:bg-red-600 selection:text-white";
+        if (tText) tText.textContent = "Light";
+        if (tIcon) { tIcon.setAttribute('data-lucide', 'sun'); tIcon.className = "w-4 h-4 text-amber-500"; }
+      } else {
+        html.classList.add('dark');
+        document.body.className = "bg-[#0b0b0e] text-slate-100 min-h-screen font-sans antialiased selection:bg-red-600 selection:text-white";
+        if (tText) tText.textContent = "Night";
+        if (tIcon) { tIcon.setAttribute('data-lucide', 'moon'); tIcon.className = "w-4 h-4 text-amber-400"; }
+      }
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    // 8. SIDEBAR TABS CONTROLLER
+    function switchTab(tabId) {
+      const tabs = ['home', 'viral', 'ometv', 'language', 'content', 'auth', 'history', 'setting'];
+      tabs.forEach(t => {
+        const el = document.getElementById(`content-tab-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (el) el.classList.toggle('hidden', t !== tabId);
+        if (btn) {
+          if (t === tabId) {
+            btn.className = "menu-tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-white bg-red-600 shadow-md transition-all";
+          } else {
+            btn.className = "menu-tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-[#14141c] transition-all";
+          }
+        }
+      });
+      toggleSidebar(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function toggleSidebar(show) {
+      const sidebar = document.getElementById('sidebar-menu');
+      const overlay = document.getElementById('mobile-overlay');
+      if (!sidebar) return;
+      if (show === undefined) show = sidebar.classList.contains('-translate-x-full');
+      if (show) {
+        sidebar.classList.remove('-translate-x-full');
+        if (overlay) overlay.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        if (overlay) overlay.classList.add('hidden');
+      }
+    }
+
+    // 9. PENCARIAN REAL-TIME
+    function handleLiveSearch(query) {
+      const q = query.trim().toLowerCase();
+      const alertBox = document.getElementById('search-alert');
+      const clearBtn = document.getElementById('search-clear-btn');
+      const queryText = document.getElementById('search-query-text');
+
+      if (!q) {
+        clearLiveSearch();
+        return;
+      }
+
+      if (alertBox) alertBox.classList.remove('hidden');
+      if (clearBtn) clearBtn.classList.remove('hidden');
+      if (queryText) queryText.textContent = query;
+
+      switchTab('home');
+
+      const filtered = MOVIES.filter(m => 
+        m.title.toLowerCase().includes(q) || 
+        m.cat.toLowerCase().includes(q) || 
+        m.country.toLowerCase().includes(q)
+      );
+      renderGridItems('grid-new-release', filtered);
+      renderGridItems('grid-trending', filtered);
+    }
+
+    function clearLiveSearch() {
+      const input = document.getElementById('nav-search-input');
+      if (input) input.value = '';
+      const alertBox = document.getElementById('search-alert');
+      const clearBtn = document.getElementById('search-clear-btn');
+      if (alertBox) alertBox.classList.add('hidden');
+      if (clearBtn) clearBtn.classList.add('hidden');
+      renderMoviesGrid();
+    }
+
+    // 10. RENDER KATALOG & KARTU FILM
+    function filterCat(cat) {
+      currentCatFilter = cat;
+      document.querySelectorAll('.cat-pill').forEach(p => {
+        if (p.textContent === cat || (cat === 'All' && p.textContent === 'Semua')) {
+          p.className = "cat-pill px-3 py-1.5 rounded-full font-semibold bg-red-600 text-white whitespace-nowrap";
+        } else {
+          p.className = "cat-pill px-3 py-1.5 rounded-full font-semibold bg-[#14141c] text-slate-300 border border-[#232332] whitespace-nowrap";
+        }
+      });
+      renderMoviesGrid();
+    }
+
+    function renderMoviesGrid() {
+      let list = MOVIES;
+      if (currentCatFilter !== 'All') {
+        list = MOVIES.filter(m => m.cat.toLowerCase() === currentCatFilter.toLowerCase());
+      }
+      renderGridItems('grid-new-release', list.filter(m => m.isNew));
+      renderGridItems('grid-trending', list.filter(m => m.isViral));
+    }
+
+    function renderGridItems(containerId, items) {
+      const c = document.getElementById(containerId);
+      if (!c) return;
+      if (items.length === 0) {
+        c.innerHTML = `<div class="col-span-full py-8 text-center text-xs text-slate-400">Tidak ada film yang cocok.</div>`;
+        return;
+      }
+      c.innerHTML = items.map(m => `
+        <div onclick="playMovie('${m.id}', 1)" class="group cursor-pointer rounded-2xl bg-[#14141c] border border-[#232332] overflow-hidden hover:border-red-500/50 transition-all">
+          <div class="aspect-[3/4] w-full relative overflow-hidden bg-slate-900">
+            <img src="${m.poster}" alt="${m.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
+            <div class="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/70 text-[10px] text-amber-400 font-bold flex items-center gap-1">★ ${m.rate}</div>
+            <div class="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-red-600 text-white text-[9px] font-bold">223 EPS</div>
+            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+              <div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white shadow-lg"><i data-lucide="play" class="w-5 h-5 fill-white ml-0.5"></i></div>
+            </div>
+          </div>
+          <div class="p-2.5 space-y-1">
+            <h4 class="text-xs font-bold text-white truncate group-hover:text-red-400">${m.title}</h4>
+            <div class="flex items-center justify-between text-[10px] text-slate-400">
+              <span>${m.cat}</span>
+              <span>${m.country}</span>
+            </div>
+            <button onclick="event.stopPropagation(); playMovie('${m.id}', 1);" class="w-full mt-1 py-1 rounded bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white text-[11px] font-bold transition-colors">
+              Watch Now
+            </button>
+          </div>
+        </div>
+      `).join('');
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    // 11. SIDEBAR POPULAR & FAVORITES
+    function renderPopularSidebar() {
+      const c = document.getElementById('popular-movies-column');
+      if (!c) return;
+      c.innerHTML = MOVIES.slice(0, 5).map((m, i) => `
+        <div onclick="playMovie('${m.id}', 1)" class="flex items-center gap-2.5 p-2 rounded-xl bg-[#0b0b0e] hover:bg-slate-800 cursor-pointer border border-[#232332] transition-colors">
+          <span class="text-base font-black ${i === 0 ? 'text-red-500' : 'text-slate-500'} w-4 text-center">${i + 1}</span>
+          <img src="${m.poster}" alt="${m.title}" class="w-10 h-12 rounded object-cover">
+          <div class="flex-1 min-w-0">
+            <h5 class="text-xs font-bold text-white truncate">${m.title}</h5>
+            <p class="text-[10px] text-slate-400">${m.cat} • ★ ${m.rate}</p>
+          </div>
+          <i data-lucide="play-circle" class="w-4 h-4 text-red-500"></i>
+        </div>
+      `).join('');
+    }
+
+    function renderFavoritesSidebar() {
+      const c = document.getElementById('favorites-column');
+      if (!c) return;
+      const favMovies = MOVIES.filter(m => favorites.includes(m.id));
+      if (favMovies.length === 0) {
+        c.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Belum ada film favorit.</p>`;
+        return;
+      }
+      c.innerHTML = favMovies.map(m => `
+        <div onclick="playMovie('${m.id}', 1)" class="flex items-center gap-2 p-2 rounded-xl bg-[#0b0b0e] hover:bg-slate-800 cursor-pointer border border-[#232332]">
+          <img src="${m.poster}" alt="${m.title}" class="w-9 h-11 rounded object-cover">
+          <div class="flex-1 min-w-0">
+            <h5 class="text-xs font-bold text-white truncate">${m.title}</h5>
+            <p class="text-[10px] text-slate-400">${m.cat}</p>
+          </div>
+          <button onclick="event.stopPropagation(); toggleFav('${m.id}');" class="text-rose-500 hover:text-slate-400">
+            <i data-lucide="heart" class="w-4 h-4 fill-rose-500"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function toggleFav(id) {
+      if (favorites.includes(id)) {
+        favorites = favorites.filter(f => f !== id);
+      } else {
+        favorites.push(id);
+      }
+      localStorage.setItem('vidio_favs', JSON.stringify(favorites));
+      updateBadges();
+      renderFavoritesSidebar();
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    // 12. TAB VIRAL, OMETV, BAHASA, NEGARA
+    function renderViralTab() {
+      const c = document.getElementById('viral-items-grid');
+      if (!c) return;
+      const viralData = [
+        { title: 'Kompilasi Aksi Menegangkan 2026', views: '2.8M views', tag: 'Trending #1 TikTok', img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80' },
+        { title: 'Behind The Scene Film Action Cyber', views: '1.4M views', tag: 'Viral YouTube', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80' },
+        { title: 'Reaksi Netizen Terhadap Episode 223', views: '980K views', tag: 'Trending Twitter X', img: 'https://images.unsplash.com/photo-1514306191717-452ec28c7814?auto=format&fit=crop&w=800&q=80' },
+        { title: 'Momen Lucu Syuting Warkop Milenial', views: '840K views', tag: 'Viral Instagram Reels', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80' }
+      ];
+      c.innerHTML = viralData.map(v => `
+        <div onclick="playMovie('m-1', 1)" class="cursor-pointer rounded-2xl bg-[#14141c] border border-[#232332] overflow-hidden hover:border-orange-500/50">
+          <div class="aspect-video w-full relative">
+            <img src="${v.img}" alt="${v.title}" class="w-full h-full object-cover">
+            <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-orange-600 text-white text-[10px] font-bold">${v.tag}</span>
+            <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <i data-lucide="play-circle" class="w-10 h-10 text-white"></i>
+            </div>
+          </div>
+          <div class="p-3">
+            <h4 class="text-xs font-bold text-white">${v.title}</h4>
+            <p class="text-[10px] text-slate-400 mt-1">${v.views} • Tersedia di Pemutar HD</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderOmeTvTab() {
+      const c = document.getElementById('ometv-rooms-container');
+      if (!c) return;
+      const rooms = [
+        { name: 'Room Jakarta #102', country: '🇮🇩 Indonesia', users: 432 },
+        { name: 'Room Seoul K-Pop', country: '🇰🇷 South Korea', users: 512 },
+        { name: 'Room Tokyo Anime Chat', country: '🇯🇵 Japan', users: 388 },
+        { name: 'Room California Chill', country: '🇺🇸 USA', users: 290 },
+        { name: 'Room Madrid Live', country: '🇪🇸 Spain', users: 190 },
+        { name: 'Room Bangkok Friends', country: '🇹🇭 Thailand', users: 240 }
+      ];
+      c.innerHTML = rooms.map(r => `
+        <div onclick="playMovie('m-3', 1)" class="cursor-pointer p-3 rounded-xl bg-[#14141c] border border-[#232332] hover:border-emerald-500 text-xs space-y-1">
+          <div class="flex items-center justify-between text-[11px] text-emerald-400 font-semibold">
+            <span>${r.country}</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          </div>
+          <p class="font-bold text-white truncate">${r.name}</p>
+          <p class="text-[10px] text-slate-400">${r.users} partisipan</p>
+        </div>
+      `).join('');
+    }
+
+    function renderLanguagesTab(filter = '') {
+      const c = document.getElementById('languages-container');
+      if (!c) return;
+      const langs = ALL_LANGUAGES.filter(l => l.name.toLowerCase().includes(filter.toLowerCase()));
+      c.innerHTML = langs.map(l => `
+        <div onclick="selectLanguage('${l.name}')" class="cursor-pointer p-2.5 rounded-xl bg-[#14141c] border border-[#232332] hover:border-cyan-500 transition-colors flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <span class="text-base">${l.flag}</span>
+            <span class="font-semibold text-white">${l.name}</span>
+          </div>
+          <span class="text-[10px] text-cyan-400">${l.count} vid</span>
+        </div>
+      `).join('');
+    }
+
+    function searchLanguages(val) {
+      renderLanguagesTab(val);
+    }
+
+    function selectLanguage(lang) {
+      openDirectLink();
+      const filtered = MOVIES.filter(m => m.lang.toLowerCase() === lang.toLowerCase());
+      if (filtered.length > 0) {
+        playMovie(filtered[0].id, 1);
+      } else {
+        playMovie('m-1', 1);
+      }
+    }
+
+    function renderCountryTab() {
+      const pillBox = document.getElementById('country-pill-selector');
+      if (pillBox) {
+        pillBox.innerHTML = ALL_COUNTRIES.map(c => `
+          <button onclick="setCountryFilter('${c}')" class="px-3 py-1.5 rounded-full font-semibold whitespace-nowrap ${c === currentCountryFilter ? 'bg-rose-600 text-white' : 'bg-[#14141c] text-slate-300 border border-[#232332]'}">
+            ${c}
+          </button>
+        `).join('');
+      }
+      const label = document.getElementById('active-country-label');
+      if (label) label.textContent = currentCountryFilter;
+
+      const grid = document.getElementById('country-movies-grid');
+      if (grid) {
+        const movies = MOVIES.filter(m => m.country.toLowerCase() === currentCountryFilter.toLowerCase());
+        renderGridItems('country-movies-grid', movies.length ? movies : MOVIES);
+      }
+    }
+
+    function setCountryFilter(c) {
+      currentCountryFilter = c;
+      renderCountryTab();
+    }
+
+    // 13. MEDIA X & FACEBOOK LOGIN
+    function renderAuthPanel() {
+      const c = document.getElementById('auth-panel-wrapper');
+      if (!c) return;
+      if (authUser) {
+        c.innerHTML = `
+          <div class="flex items-center justify-between pb-3 border-b border-[#232332]">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full ${authUser.provider === 'X' ? 'bg-blue-500' : 'bg-blue-700'} flex items-center justify-center text-white font-bold text-sm">
+                ${authUser.provider}
+              </div>
+              <div>
+                <h4 class="text-xs font-bold text-white">${authUser.username}</h4>
+                <p class="text-[10px] text-emerald-400">Terhubung via Akun ${authUser.provider}</p>
+              </div>
+            </div>
+            <button onclick="logoutAuth()" class="px-3 py-1.5 bg-red-600/20 text-red-400 border border-red-500/30 rounded-lg text-xs font-bold">Keluar</button>
+          </div>
+          <p class="text-xs text-slate-400">Akun Anda aktif. Riwayat tontonan dan bookmark tersinkronisasi otomatis.</p>
+        `;
+        const loginLabel = document.getElementById('nav-login-name');
+        if (loginLabel) loginLabel.textContent = authUser.username.split('@')[0];
+      } else {
+        c.innerHTML = `
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <button onclick="loginSocial('X')" class="py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold flex items-center justify-center gap-2 hover:bg-slate-800">
+              <span class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-[10px]">X</span> Masuk via X
+            </button>
+            <button onclick="loginSocial('Facebook')" class="py-2.5 px-3 rounded-xl bg-blue-900/40 border border-blue-600 text-blue-300 font-bold flex items-center justify-center gap-2 hover:bg-blue-900/60">
+              <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">f</span> Facebook
+            </button>
+          </div>
+          <div class="p-3 rounded-xl bg-[#0b0b0e] border border-[#232332] space-y-2">
+            <p class="text-xs font-semibold text-slate-200">Atau Masuk Cepat:</p>
+            <input id="auth-input-user" type="text" placeholder="Username / Email Sosial Media" class="w-full px-3 py-1.5 bg-[#14141c] border border-[#232332] rounded-lg text-xs text-slate-200 focus:outline-none" />
+            <button onclick="loginCustom()" class="w-full py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold">Masuk Sekarang</button>
+          </div>
+        `;
+        const loginLabel = document.getElementById('nav-login-name');
+        if (loginLabel) loginLabel.textContent = "Masuk";
+      }
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function loginSocial(provider) {
+      openDirectLink();
+      authUser = { provider: provider, username: `@user_${provider.toLowerCase()}_vip` };
+      localStorage.setItem('vidio_user', JSON.stringify(authUser));
+      renderAuthPanel();
+    }
+
+    function loginCustom() {
+      const val = document.getElementById('auth-input-user')?.value.trim();
+      if (!val) return;
+      openDirectLink();
+      authUser = { provider: 'Account', username: val };
+      localStorage.setItem('vidio_user', JSON.stringify(authUser));
+      renderAuthPanel();
+    }
+
+    function logoutAuth() {
+      authUser = null;
+      localStorage.removeItem('vidio_user');
+      renderAuthPanel();
+    }
+
+    // 14. RIWAYAT TONTONAN (HISTORY)
+    function renderHistoryTab() {
+      const c = document.getElementById('history-items-list');
+      if (!c) return;
+      if (watchHistory.length === 0) {
+        c.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Belum ada riwayat video yang ditonton.</p>`;
+        return;
+      }
+      c.innerHTML = watchHistory.map(h => `
+        <div onclick="playMovie('${h.movieId}', ${h.episode})" class="cursor-pointer p-2.5 rounded-xl bg-[#14141c] border border-[#232332] hover:border-amber-500 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-3">
+            <i data-lucide="play-circle" class="w-4 h-4 text-amber-400"></i>
+            <div>
+              <p class="font-bold text-white">${h.title}</p>
+              <p class="text-[10px] text-slate-400">Terakhir: Episode ${h.episode} • ${h.time}</p>
+            </div>
+          </div>
+          <span class="text-amber-400 font-semibold">Lanjut Putar →</span>
+        </div>
+      `).join('');
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function addHistory(movieId, ep) {
+      const m = MOVIES.find(item => item.id === movieId);
+      if (!m) return;
+      watchHistory = watchHistory.filter(h => h.movieId !== movieId);
+      watchHistory.unshift({
+        movieId: movieId,
+        title: m.title,
+        episode: ep,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+      if (watchHistory.length > 20) watchHistory.pop();
+      localStorage.setItem('vidio_history', JSON.stringify(watchHistory));
+      updateBadges();
+      renderHistoryTab();
+    }
+
+    function clearAllHistory() {
+      watchHistory = [];
+      localStorage.removeItem('vidio_history');
+      updateBadges();
+      renderHistoryTab();
+    }
+
+    function updateBadges() {
+      const favBadge = document.getElementById('fav-count-badge');
+      if (favBadge) favBadge.textContent = favorites.length;
+      const histBadge = document.getElementById('history-count-badge');
+      if (histBadge) histBadge.textContent = watchHistory.length;
+    }
+
+    // 15. PEMUTAR VIDEO (LINK PER EPISODE SUDAH BENAR)
+    function playMovie(movieId, episodeNumber = 1) {
+      currentMovieId = movieId;
+      currentEpisode = episodeNumber;
+
+      // Aturan Iklan: Berfungsi ganda membuka pemutar & membuka DIRECT_LINK di tab baru
+      openDirectLink();
+
+      const movie = MOVIES.find(m => m.id === movieId) || MOVIES[0];
+      
+      const modal = document.getElementById('video-modal');
+      const modalTitle = document.getElementById('modal-title');
+      const curBadge = document.getElementById('modal-current-ep');
+      const hud = document.getElementById('video-hud-ep');
+      const urlBox = document.getElementById('modal-url-box');
+      const videoEl = document.getElementById('player-video');
+      const videoSrc = document.getElementById('player-src');
+
+      if (modalTitle) modalTitle.textContent = movie.title;
+      if (curBadge) curBadge.textContent = `Ep ${episodeNumber}`;
+      if (hud) hud.textContent = `Episode ${episodeNumber} / 223`;
+
+      // Mengambil link khusus yang tepat per episode
+      currentVideoUrl = getVideoUrl(movieId, episodeNumber);
+      if (urlBox) urlBox.value = currentVideoUrl;
+
+      if (videoSrc) videoSrc.src = currentVideoUrl;
+      if (videoEl) {
+        videoEl.load();
+        videoEl.play().catch(e => console.log("Autoplay didukung:", e));
+      }
+
+      // Render batch episode 1-50 awal
+      const startBatch = Math.floor((episodeNumber - 1) / 50) * 50 + 1;
+      const endBatch = Math.min(startBatch + 49, 223);
+      renderEpisodeBatch(startBatch, endBatch);
+
+      addHistory(movieId, episodeNumber);
+      if (modal) modal.classList.remove('hidden');
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function closeVideoModal() {
+      const modal = document.getElementById('video-modal');
+      const videoEl = document.getElementById('player-video');
+      if (videoEl) videoEl.pause();
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function renderEpisodeBatch(start, end) {
+      const container = document.getElementById('episodes-container');
+      if (!container) return;
+
+      document.querySelectorAll('.ep-batch-btn').forEach(b => {
+        b.className = "ep-batch-btn px-2.5 py-1 rounded bg-[#0b0b0e] text-slate-400 border border-[#232332] whitespace-nowrap font-semibold";
+      });
+      const activeTabBtn = document.getElementById(`ep-tab-${start}`);
+      if (activeTabBtn) activeTabBtn.className = "ep-batch-btn px-2.5 py-1 rounded bg-red-600 text-white whitespace-nowrap font-semibold";
+
+      let html = '';
+      for (let i = start; i <= end; i++) {
+        const isActive = i === currentEpisode;
+        html += `
+          <button 
+            onclick="selectEpisode(${i})" 
+            class="py-1.5 rounded text-xs font-bold transition-all ${
+              isActive 
+                ? 'bg-red-600 text-white ring-1 ring-white shadow-md' 
+                : 'bg-[#0b0b0e] hover:bg-slate-800 text-slate-300 border border-[#232332]'
+            }">
+            ${i}
+          </button>
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    function selectEpisode(num) {
+      // Aturan Iklan: Setiap ganti episode memicu direct link
+      openDirectLink();
+
+      currentEpisode = num;
+      const curBadge = document.getElementById('modal-current-ep');
+      const hud = document.getElementById('video-hud-ep');
+      const videoEl = document.getElementById('player-video');
+      const videoSrc = document.getElementById('player-src');
+      const urlBox = document.getElementById('modal-url-box');
+      
+      if (curBadge) curBadge.textContent = `Ep ${num}`;
+      if (hud) hud.textContent = `Episode ${num} / 223`;
+
+      // Mengambil link khusus yang tepat untuk episode ini
+      currentVideoUrl = getVideoUrl(currentMovieId, num);
+      if (urlBox) urlBox.value = currentVideoUrl;
+
+      if (videoSrc) videoSrc.src = currentVideoUrl;
+      if (videoEl) {
+        videoEl.load();
+        videoEl.play().catch(e => console.log(e));
+      }
+
+      const startBatch = Math.floor((num - 1) / 50) * 50 + 1;
+      const endBatch = Math.min(startBatch + 49, 223);
+      renderEpisodeBatch(startBatch, endBatch);
+
+      addHistory(currentMovieId, num);
+    }
+
+    function jumpEp(val) {
+      const n = parseInt(val, 10);
+      if (n >= 1 && n <= 223) {
+        selectEpisode(n);
+      } else {
+        alert("Pilih nomor episode antara 1 sampai 223!");
+      }
+    }
+
+    function changeActiveVideoSource() {
+      const box = document.getElementById('modal-url-box');
+      const url = box ? box.value.trim() : '';
+      if (!url) return;
+      currentVideoUrl = url;
+      const videoEl = document.getElementById('player-video');
+      const videoSrc = document.getElementById('player-src');
+      if (videoSrc && videoEl) {
+        videoSrc.src = url;
+        videoEl.load();
+        videoEl.play().catch(e => console.log(e));
+      }
+    }
+
+    function applyCustomGlobalUrl() {
+      const input = document.getElementById('custom-global-url');
+      const url = input ? input.value.trim() : '';
+      if (url) {
+        currentVideoUrl = url;
+        alert("Video source berhasil diperbarui ke: " + url);
+      }
+    }
+  </script>
+</body>
+</html>
